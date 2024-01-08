@@ -1,0 +1,69 @@
+import java.util.List;
+        interface Structure {
+            // zwraca dowolny element o podanym kolorze
+            Optional<Block> findBlockByColor(String color);
+
+            // zwraca wszystkie elementy z danego materiału
+            List<Block> findBlocksByMaterial(String material);
+
+            //zwraca liczbę wszystkich elementów tworzących strukturę
+            int count();
+        }
+
+        public class Wall implements Structure {
+            private List<Block> blocks;
+
+            @Override
+            public Optional<Block> findBlockByColor(String color) {
+                List<Block> tmp = flatteningBlocksList(blocks);
+                for(Block block : tmp) {
+                    if(block.getColor().equals(color)){
+                        return Optional.of(block);
+                    }
+                }
+                return Optional.empty();
+            }
+
+            @Override
+            public List<Block> findBlocksByMaterial(String material) {
+                List<Block> tmp = flatteningBlocksList(blocks);
+                List<Block> result = new ArrayList<>();
+                for(Block block : tmp) {
+                    if(block.getMaterial().equals(material)){
+                        result.add(block);
+                    }
+                }
+                return result;
+            }
+
+            @Override
+            public int count() {
+                List<Block> tmp = flatteningBlocksList(blocks);
+                return tmp.size();
+            }
+
+            private List<Block> flatteningBlocksList(List<Block> in) {
+                if (in == null) {
+                    return new ArrayList<>();
+                }
+                List<Block> flattenedList = new ArrayList<>();
+                for (Block block : in) {
+                    if (block instanceof CompositeBlock) {
+                        flattenedList.addAll(flatteningBlocksList(((CompositeBlock) block).getBlocks()));
+                    } else {
+                        flattenedList.add(block);
+                    }
+                }
+                return flattenedList;
+            }
+
+        }
+
+        interface Block {
+            String getColor();
+            String getMaterial();
+        }
+
+        interface CompositeBlock extends Block {
+            List<Block> getBlocks();
+        }
